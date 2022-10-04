@@ -1,0 +1,95 @@
+import { InputHandler } from "./input";
+import { Position } from "./position";
+
+const dpr = window.devicePixelRatio;
+
+export class Viewport {
+  /** viewport zoom level */
+  zoom = 1;
+
+  /** viewport offset from player in number of blocks */
+  offset = { x: 0, y: 0 };
+  /** viewport size in number of blocks */
+  size = { width: 3, height: 3 };
+
+  /* ratio between width and height */
+  ratio = 1;
+
+  canvas = {
+    width: innerWidth,
+    height: innerHeight,
+    tile: 80,
+    mid: { x: innerWidth / 2, y: innerHeight / 2 },
+  };
+
+  ctx: CanvasRenderingContext2D;
+  target: Target;
+
+  constructor(ctx: CanvasRenderingContext2D, target: Target) {
+    this.ctx = ctx;
+    this.target = target;
+
+    addEventListener("resize", this._resize);
+
+    this._resize();
+    this._updateZoom(1);
+  }
+
+  update(_deltaTime: number, input: InputHandler): void {
+    if (input.keys.space) {
+      this._updateZoom(
+        Math.max(
+          0.3,
+          Math.min(6, this.zoom + (input.keys.shift ? -0.01 : 0.01))
+        )
+      );
+    }
+  }
+
+  resolve(pos: Position) {
+    const x = (pos.x - this.min.x) * this.canvas.tile;
+    const y = (pos.y - this.min.y) * this.canvas.tile;
+    return { x, y };
+  }
+
+  get min() {
+    const mid = this.target.pos;
+    const { width, height } = this.size;
+    const { offset } = this;
+    const x = mid.x + offset.x - width / 2;
+    const y = mid.y + offset.y - height / 2;
+    return { x, y };
+  }
+
+  get max() {
+    const mid = this.target.pos;
+    const { width, height } = this.size;
+    const { offset } = this;
+    const x = mid.x + offset.x + width / 2;
+    const y = mid.y + offset.y + height / 2;
+    return { x, y };
+  }
+
+  _resize = () => {
+    this.ctx.canvas.style.width = `${innerWidth}px`;
+    this.ctx.canvas.style.height = `${innerHeight}px`;
+    this.canvas.width = this.ctx.canvas.width = dpr * innerWidth;
+    this.canvas.height = this.ctx.canvas.height = dpr * (innerHeight - 7);
+    this.canvas.mid = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+    this.canvas.tile = this.canvas.width / this.size.width;
+    this.ratio = this.ctx.canvas.width / this.ctx.canvas.height;
+    this.ctx.imageSmoothingEnabled = false;
+  };
+
+  _updateZoom(zoom: number) {
+    this.zoom = zoom;
+    const area = 100 * this.zoom ** 2;
+    const width = Math.sqrt(area * this.ratio);
+    this.size = { width, height: area / width };
+    this.canvas.tile = this.canvas.width / width;
+  }
+}
+
+interface Target {
+  pos: Position;
+}
