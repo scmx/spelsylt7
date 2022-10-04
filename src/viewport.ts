@@ -10,7 +10,7 @@ export class Viewport {
   /** viewport offset from player in number of blocks */
   offset = { x: 0, y: 0 };
   /** viewport size in number of blocks */
-  size = { width: 3, height: 3 };
+  size = { width: 0, height: 0 };
 
   /* ratio between width and height */
   ratio = 1;
@@ -72,7 +72,7 @@ export class Viewport {
 
   _resize = () => {
     this.ctx.canvas.style.width = `${innerWidth}px`;
-    this.ctx.canvas.style.height = `${innerHeight}px`;
+    this.ctx.canvas.style.height = `${innerHeight - 7}px`;
     this.canvas.width = this.ctx.canvas.width = dpr * innerWidth;
     this.canvas.height = this.ctx.canvas.height = dpr * (innerHeight - 7);
     this.canvas.mid = { x: this.canvas.width / 2, y: this.canvas.height / 2 };

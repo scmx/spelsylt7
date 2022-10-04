@@ -1,39 +1,32 @@
-import { Character } from "./character";
-import { InputHandler } from "./input";
+import { Game } from "./game";
+import { Player } from "./player";
 import "./style.css";
 import { Viewport } from "./viewport";
 
 function init() {
   const ctx = canvas.getContext("2d")!;
-  const dpr = window.devicePixelRatio;
-  ctx.scale(dpr, dpr);
-  ctx.imageSmoothingEnabled = false;
+  if (!ctx) throw new Error("Failed to get context");
 
-  const character = new Character({ x: 0, y: 0 });
-  const viewport = new Viewport(ctx, character);
-  const input = new InputHandler();
+  const player = new Player({ x: 0, y: 0 });
+  const viewport = new Viewport(ctx, player);
+  const game = new Game(viewport, player);
 
+  let animationId = 0;
   let lastTime = 0;
+
   function animate(timeStamp: number) {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    character.draw(ctx, viewport);
-    character.update(deltaTime, viewport, input);
+    game.update(deltaTime);
 
-    requestAnimationFrame(animate);
+    game.draw(ctx);
+
+    animationId = requestAnimationFrame(animate);
   }
 
-  requestAnimationFrame(animate);
-
-  // function resize() {
-  //   const size = Math.min(innerWidth, innerHeight);
-  //   canvas.width = canvas.height = size * 2;
-  //   canvas.style.width = canvas.style.height = `${size}px`;
-  //   viewport.zoom = size / 64;
-  // }
-  // addEventListener("resize", resize);
+  cancelAnimationFrame(animationId);
+  animationId = requestAnimationFrame(animate);
 }
 
 init();
