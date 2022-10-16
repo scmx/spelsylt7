@@ -10,8 +10,9 @@ export class Tiles implements Entity {
     this.seed = seed;
   }
 
-  update(_deltaTime: number, viewport: Viewport): void {
+  update(deltaTime: number, viewport: Viewport): void {
     this.loadUnloadChunks(viewport);
+    for (const [, chunk] of this.chunks) chunk.update(deltaTime, viewport);
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {

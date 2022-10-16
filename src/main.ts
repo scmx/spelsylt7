@@ -18,19 +18,31 @@ function init() {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
 
-    game.update(deltaTime);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     game.draw(ctx);
+
+    game.update(deltaTime);
 
     animationId = requestAnimationFrame(animate);
   }
 
   cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(animate);
+
+  toggle.addEventListener("click", () => {
+    viewport.toggleGameMode();
+    toggle.blur();
+  });
+
+  addEventListener("keydown", (event) => {
+    if (event.key === "d") viewport.debug = !viewport.debug;
+  });
 }
 
 init();
 
 declare global {
   const canvas: HTMLCanvasElement;
+  const toggle: HTMLButtonElement;
 }

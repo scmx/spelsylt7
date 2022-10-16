@@ -3,9 +3,33 @@ import { Position } from "./position";
 
 const dpr = window.devicePixelRatio;
 
+enum GameMode {
+  normal = "normal",
+  god = "god",
+}
+
+const ZOOM = {
+  normal: {
+    min: 0.4,
+    max: 6,
+    start: 1,
+    speed: 0.05,
+  },
+  god: {
+    min: 0.4,
+    max: 20,
+    start: 20,
+    speed: 0.08,
+  },
+};
+
 export class Viewport {
   /** viewport zoom level */
   zoom = 1;
+
+  gameMode = GameMode.normal;
+
+  debug = false;
 
   /** viewport offset from player in number of blocks */
   offset = { x: 0, y: 0 };
@@ -32,17 +56,14 @@ export class Viewport {
     addEventListener("resize", this._resize);
 
     this._resize();
-    this._updateZoom(1);
+    this._updateZoom(this.zoom);
   }
 
   update(_deltaTime: number, input: InputHandler): void {
     if (input.keys.space) {
-      this._updateZoom(
-        Math.max(
-          0.3,
-          Math.min(6, this.zoom + (input.keys.shift ? -0.01 : 0.01))
-        )
-      );
+      const { min, max, speed } = ZOOM[this.gameMode];
+      const modifier = 1 + (input.keys.shift ? -speed : speed);
+      this._updateZoom(Math.max(min, Math.min(max, this.zoom * modifier)));
     }
   }
 
@@ -79,6 +100,7 @@ export class Viewport {
     this.canvas.tile = this.canvas.width / this.size.width;
     this.ratio = this.ctx.canvas.width / this.ctx.canvas.height;
     this.ctx.imageSmoothingEnabled = false;
+    this._updateZoom(this.zoom);
   };
 
   _updateZoom(zoom: number) {
@@ -87,6 +109,16 @@ export class Viewport {
     const width = Math.sqrt(area * this.ratio);
     this.size = { width, height: area / width };
     this.canvas.tile = this.canvas.width / width;
+  }
+
+  toggleGameMode() {
+    if (this.gameMode === GameMode.normal) {
+      this.gameMode = GameMode.god;
+    } else {
+      this.gameMode = GameMode.normal;
+    }
+    this.zoom = ZOOM[this.gameMode].start;
+    this._updateZoom(this.zoom);
   }
 }
 

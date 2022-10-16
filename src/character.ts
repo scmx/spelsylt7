@@ -1,20 +1,25 @@
 import { Position } from "./position";
 import { Viewport } from "./viewport";
 
+export type CharacterMove = -1 | 0 | 1;
+
 export class Character {
-  state = sample(characterStates);
+  state = CharacterState.idle;
   skin = sample(characterSkins);
   hair = sample(characterHairs);
-  facing = CharacterFacing.right;
+  facing = sample(characterFacings);
   top = sample(characterTops);
   bottom = sample(characterBottoms);
   shoes = sample(characterShoes);
   frame = { x: 0, timer: 0, interval: 1000 / 8 };
   images: HTMLImageElement[] = [];
   speed = 1;
+  xmov: CharacterMove = 0;
+  ymov: CharacterMove = 0;
 
   pos: Position;
   accessory?: CharacterAccessory;
+  tool?: "keyboard";
 
   constructor({ x, y }: Position) {
     this.pos = { x, y };
@@ -23,20 +28,27 @@ export class Character {
   }
 
   update(deltaTime: number, _viewport: Viewport): void {
+    this.updateFrame(deltaTime);
+  }
+
+  updateFrame(deltaTime: number, { idleStill }: { idleStill?: boolean } = {}) {
     if (this.frame.timer < this.frame.interval) this.frame.timer += deltaTime;
     else {
       this.frame.timer = 0;
-      this.frame.x = (this.frame.x + 1) % characterFrames[this.state];
+      this.frame.x =
+        idleStill && this.state === CharacterState.idle
+          ? 0
+          : (this.frame.x + 1) % characterFrames[this.state];
     }
   }
 
-  move(deltaTime: number, xmov: -1 | 0 | 1, ymov: -1 | 0 | 1) {
-    if (xmov || ymov) {
-      const angle = Math.atan2(ymov, xmov);
-      this.state = CharacterState.walk;
-      this.facing = updateFacing(xmov, ymov);
-      this.pos.x += Math.cos(angle) * this.speed * deltaTime * 0.003;
-      this.pos.y += Math.sin(angle) * this.speed * deltaTime * 0.003;
+  move(deltaTime: number, speed = this.speed) {
+    if (this.xmov || this.ymov) {
+      const angle = Math.atan2(this.ymov, this.xmov);
+      this.state = speed > 0.5 ? CharacterState.run : CharacterState.walk;
+      this.facing = updateFacing(this.xmov, this.ymov);
+      this.pos.x += Math.cos(angle) * speed * deltaTime * 0.003;
+      this.pos.y += Math.sin(angle) * speed * deltaTime * 0.003;
     } else if (this.state !== CharacterState.idle) {
       this.state = CharacterState.idle;
       this.frame.x = 0;
@@ -45,22 +57,28 @@ export class Character {
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
-    const { mid, tile } = viewport.canvas;
+    const { tile } = viewport.canvas;
+    const pos = viewport.resolve(this.pos);
     const { frame } = this;
     const size = tile * 4;
     const half = size / 2;
+    const eight = size / 8;
     for (const image of this.images) {
-      ctx.drawImage(
-        image,
-        frame.x * 64,
-        this.facing * 64,
-        64,
-        64,
-        mid.x - half,
-        mid.y - half,
-        size,
-        size
-      );
+      if (image.dataset.still) {
+        ctx.drawImage(image, pos.x, pos.y, eight, eight);
+      } else {
+        ctx.drawImage(
+          image,
+          frame.x * 64,
+          this.facing * 64,
+          64,
+          64,
+          pos.x - half,
+          pos.y - half,
+          size,
+          size
+        );
+      }
     }
   }
 
@@ -87,7 +105,7 @@ enum CharacterFacing {
   up,
 }
 
-enum CharacterState {
+export enum CharacterState {
   idle = "idle",
   jump = "jump",
   run = "run",
@@ -188,21 +206,26 @@ async function getCharacterImages(options: {
   bottom: CharacterBottom;
   shoes: CharacterShoes;
   accessory?: CharacterAccessory;
+  tool?: "keyboard";
 }): Promise<HTMLImageElement[]> {
-  const { state, skin, hair, top, bottom, shoes, accessory } = options;
+  const { state, skin, hair, top, bottom, shoes, accessory, tool } = options;
   const hairType = hair.split("_")[0];
-  async function load(path: string): Promise<HTMLImageElement> {
+  async function load(
+    path: string,
+    options: { still?: boolean } = {}
+  ): Promise<HTMLImageElement> {
     let promise = cache.get(path);
     if (promise) return promise;
     promise = new Promise<HTMLImageElement>((resolve, reject) => {
       const image = new Image();
-      image.src = `${import.meta.env.BASE_URL}/assets/${path}`;
+      image.src = `${import.meta.env.BASE_URL}assets/${path}`;
       image.onload = () => resolve(image);
       image.onerror = (err) => {
         console.error(options);
         debugger;
         reject(err);
       };
+      if (options.still) image.dataset.still = "1";
     });
     cache.set(path, promise);
     return promise;
@@ -228,6 +251,10 @@ async function getCharacterImages(options: {
         `character/adult/clothing/${state}/acessories/${state}_clothing_acessories_${accessory}.png`
       )
     );
+  if (tool === "keyboard")
+    promises.push(
+      load("martin-garrido-cVUPic1cbd4-unsplash.png", { still: true })
+    );
   return Promise.all(promises);
 }
 
@@ -238,12 +265,12 @@ const characterFrames = {
   walk: 6,
 };
 
-const characterStates = [
-  CharacterState.idle,
-  CharacterState.jump,
-  CharacterState.run,
-  CharacterState.walk,
-];
+// const characterStates = [
+//   CharacterState.idle,
+//   CharacterState.jump,
+//   CharacterState.run,
+//   CharacterState.walk,
+// ];
 
 const characterSkins = [
   CharacterSkin.black,
@@ -292,12 +319,12 @@ const characterHairs = [
   CharacterHair.spikey_red,
 ];
 
-// const characterFacings = [
-//   CharacterFacing.right,
-//   CharacterFacing.left,
-//   CharacterFacing.down,
-//   CharacterFacing.up,
-// ];
+const characterFacings = [
+  CharacterFacing.right,
+  CharacterFacing.left,
+  CharacterFacing.down,
+  CharacterFacing.up,
+];
 
 function updateFacing(xmov: number, ymov: number): CharacterFacing {
   if (xmov === 0) return ymov < 0 ? CharacterFacing.up : CharacterFacing.down;
