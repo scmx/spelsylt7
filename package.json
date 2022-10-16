@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "random-js": "^2.1.0",
-    "seedrandom": "^3.0.5"
+    "seedrandom": "^3.0.5",
+    "tumult": "^3.0.14"
   }
 }
