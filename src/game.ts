@@ -27,11 +27,11 @@ export class Game {
     this.player.update(deltaTime, viewport, input);
 
     if (Math.random() < 0.2) {
-      if (this.npcs.size < 300) {
+      if (this.npcs.size < 30) {
         this.npcs.add(
           new NPC({
-            x: this.player.pos.x + Math.floor(Math.random() * 20 - 10),
-            y: this.player.pos.y + Math.floor(Math.random() * 20 - 10),
+            x: this.player.pos.x + Math.floor(Math.random() * 100 - 50),
+            y: this.player.pos.y + Math.floor(Math.random() * 100 - 50),
           })
         );
       }
@@ -39,7 +39,7 @@ export class Game {
 
     for (const npc of this.npcs) {
       npc.update(deltaTime, viewport);
-      if (distance(npc, this.player) > 20) this.npcs.delete(npc); //.markedForDeletion = true;
+      if (distance(npc, this.player) > 100) this.npcs.delete(npc);
     }
   }
 
