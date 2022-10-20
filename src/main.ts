@@ -1,4 +1,5 @@
 import { Game } from "./game";
+import { Music } from "./music";
 import { Player } from "./player";
 import "./style.css";
 import { Viewport } from "./viewport";
@@ -10,6 +11,8 @@ function init() {
   const player = new Player({ x: 0, y: 0 });
   const viewport = new Viewport(ctx, player);
   const game = new Game(viewport, player);
+  const music = new Music();
+  music.play()
 
   let animationId = 0;
   let lastTime = 0;
