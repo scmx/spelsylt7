@@ -40,24 +40,43 @@ export class Chunk {
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
-    const { tile } = viewport.canvas;
+    const { tile: tileSize } = viewport.canvas;
     const min = viewport.resolve(this.pos);
     for (let i = 0; i < Chunk.size ** 2; i++) {
-      const x = min.x + tile * (i % Chunk.size);
-      const y = min.y + tile * Math.floor(i / Chunk.size);
-      if (!viewport.debug) {
-        const tile = this.tiles[i];
-        ctx.fillStyle = {
-          [Tile.grass]: "green",
-          [Tile.sand]: "yellow",
-          [Tile.water]: "blue",
-        }[tile];
-      } else {
+      const x = min.x + tileSize * (i % Chunk.size);
+      const y = min.y + tileSize * Math.floor(i / Chunk.size);
+      const tile = this.tiles[i];
+
+      if (viewport.debug) {
         ctx.fillStyle = `hsl(${Math.floor(
           this.noise[i] * 180 + 180
         )}, 100%, 50%)`;
+        ctx.fillRect(x, y, tileSize + 1, tileSize + 1);
+      } else if (tile === Tile.grass) {
+        ctx.fillStyle = "#83cd56";
+        ctx.fillRect(x, y, tileSize + 1, tileSize + 1);
+      } else {
+        const frame = {
+          [Tile.grass]: { x: 2, y: 9 },
+          [Tile.sand]: { x: 51, y: 1 },
+          [Tile.water]: { x: 1, y: 9 },
+        }[tile];
+        ctx.drawImage(
+          image_terrain,
+          frame.x * 16,
+          frame.y * 16,
+          16,
+          16,
+          x,
+          y,
+          tileSize + 1,
+          tileSize + 1
+        );
       }
-      ctx.fillRect(x, y, tile + 1, tile + 1);
     }
   }
+}
+
+declare global {
+  const image_terrain: HTMLImageElement;
 }
