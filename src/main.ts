@@ -16,7 +16,7 @@ function init() {
   let animationId = 0;
   let lastTime = 0;
 
-  menu.showModal()
+  menu.showModal();
 
   function animate(timeStamp: number) {
     const deltaTime = timeStamp - lastTime;
@@ -35,7 +35,7 @@ function init() {
   animationId = requestAnimationFrame(animate);
 
   toggle.addEventListener("click", (event) => {
-    event?.preventDefault()
+    event?.preventDefault();
     viewport.toggleGameMode();
     toggle.blur();
     const utterance = new SpeechSynthesisUtterance("Kan du laga min skrivare?");
@@ -56,5 +56,5 @@ init();
 declare global {
   const canvas: HTMLCanvasElement;
   const toggle: HTMLButtonElement;
-  const menu: HTMLDialogElement;
+  // const menu: HTMLDialogElement;
 }
