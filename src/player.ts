@@ -14,16 +14,22 @@ export class Player extends Character {
   update(deltaTime: number, viewport: Viewport, input?: InputHandler): void {
     this.updateFrame(deltaTime);
 
+    if (input?.pointers.size){
+      for (const [, target] of input?.pointers) this.target = target;
+    }
+
+    this.xmov = 0;
+    this.ymov = 0;
+
     if (input) {
       const { up, left, down, right } = input.keys;
-
       this.xmov = left && !right ? -1 : !left && right ? 1 : 0;
       this.ymov = up && !down ? -1 : !up && down ? 1 : 0;
-      const speed = viewport.gameMode === "god" ? 20 : 1;
-      this.move(deltaTime, speed);
-    } else {
-      this.xmov = 0;
-      this.ymov = 0;
     }
+    const speed = viewport.gameMode === "god" ? 20 : 1;
+    if (!this.xmov && !this.ymov && this.target) {
+      this.pointToTarget()
+    }
+    this.move(deltaTime, speed);
   }
 }

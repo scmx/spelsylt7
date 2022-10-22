@@ -10,9 +10,8 @@ function init() {
 
   const player = new Player({ x: 0, y: 0 });
   const viewport = new Viewport(ctx, player);
-  const game = new Game(viewport, player);
   const music = new Music();
-  music.play()
+  const game = new Game(viewport, player, music);
 
   let animationId = 0;
   let lastTime = 0;
@@ -36,6 +35,12 @@ function init() {
   toggle.addEventListener("click", () => {
     viewport.toggleGameMode();
     toggle.blur();
+    const utterance = new SpeechSynthesisUtterance("Kan du laga min skrivare?");
+    utterance.lang = 'sv-SE'
+    // utterance.pitch = 2
+    utterance.rate = 1
+    utterance.volume = 0.1
+    speechSynthesis.speak(utterance);
   });
 
   addEventListener("keydown", (event) => {

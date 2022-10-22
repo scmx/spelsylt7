@@ -1,6 +1,7 @@
 import { Position } from "./position";
 import { Viewport } from "./viewport";
 import tumult from "tumult";
+import { InputHandler } from "./input";
 
 const perlin = new tumult.Perlin2("seed");
 
@@ -18,6 +19,7 @@ export class Chunk {
   seed: number;
   noise: number[];
   tiles: Tile[];
+  hoverIndexes = new Set<number>();
 
   constructor({ x, y }: Position, seed: number) {
     this.pos = { x, y };
@@ -35,8 +37,18 @@ export class Chunk {
     });
   }
 
-  update(_deltaTime: number, _viewport: Viewport): void {
-    // nothing
+  update(_deltaTime: number, _viewport: Viewport, input: InputHandler): void {
+    const { pos, max } = this;
+    this.hoverIndexes.clear();
+    for (const [, { x, y }] of input.pointers) {
+      if (x >= pos.x && x <= max.x && y >= pos.y && y <= max.y) {
+        this.hoverIndexes.add(Math.floor(y-pos.y) * Chunk.size + Math.floor(x-pos.x));
+      }
+    }
+    // if (this.hoverIndexes.size > 0) {
+    // console.log(this.hoverIndexes)
+    // debugger
+    // }
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
@@ -73,7 +85,15 @@ export class Chunk {
           tileSize + 1
         );
       }
+      if (this.hoverIndexes.has(i)) {
+        ctx.fillStyle=`rgba(255, 255, 255, 0.3)`
+        ctx.fillRect(x, y, tileSize + 1, tileSize + 1);
+      }
     }
+  }
+
+  get max() {
+    return { x: this.pos.x + Chunk.size, y: this.pos.y + Chunk.size };
   }
 }
 

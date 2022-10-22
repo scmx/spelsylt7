@@ -1,19 +1,35 @@
+import { Position } from "./position";
+import { Viewport } from "./viewport";
+
 export class InputHandler {
   keys: Record<Keys, boolean> = { ...initialKeys };
+  pointers = new Map<number, Position>();
+  viewport: Viewport;
+  _hasInteracted = false;
+  onFirstInteraction?: () => void;
 
-  constructor() {
+  constructor(viewport: Viewport) {
+    this.viewport = viewport;
     addEventListener("keydown", this.onKeydown);
     addEventListener("keyup", this.onKeyup);
     addEventListener("blur", this.onBlur);
+    addEventListener("pointerdown", this.onPointerDown);
+    addEventListener("pointermove", this.onPointerMove);
+    addEventListener("pointerup", this.onPointerUp);
+    addEventListener("pointerleave", this.onPointerLeave);
+    addEventListener("pointerout", this.onPointerLeave);
+    addEventListener("pointercancel", this.onPointerLeave);
   }
 
   onKeydown = (event: KeyboardEvent) => {
+    this.hasInteracted();
     for (const [name, keys] of KEYS) {
       if (keys.has(event.code)) this.keys[name] = true;
     }
   };
 
   onKeyup = (event: KeyboardEvent) => {
+    this.hasInteracted();
     for (const [name, keys] of KEYS) {
       if (keys.has(event.code)) this.keys[name] = false;
     }
@@ -22,9 +38,47 @@ export class InputHandler {
   onBlur = () => {
     this.keys = { ...initialKeys };
   };
+
+  onPointerDown = (event: PointerEvent) => {
+    this.hasInteracted();
+    event.preventDefault();
+    const { clientX, clientY } = event;
+    const { canvas, min } = this.viewport;
+    const x = (clientX * window.devicePixelRatio) / canvas.tile + min.x;
+    const y = (clientY * window.devicePixelRatio) / canvas.tile + min.y;
+    console.log(event.pointerId, { x, y }, { clientX, clientY });
+    this.pointers.set(event.pointerId, { x, y });
+  };
+
+  onPointerMove = (event: PointerEvent) => {
+    event.preventDefault();
+    if (event.pressure < 0.5) return;
+    const { clientX, clientY } = event;
+    const { canvas, min } = this.viewport;
+    const x = (clientX * window.devicePixelRatio) / canvas.tile + min.x;
+    const y = (clientY * window.devicePixelRatio) / canvas.tile + min.y;
+    console.log(event.pointerId, { x, y }, { clientX, clientY });
+    this.pointers.set(event.pointerId, { x, y });
+  };
+
+  onPointerUp = (event: PointerEvent) => {
+    event.preventDefault();
+    this.pointers.delete(event.pointerId);
+  };
+
+  onPointerLeave = (event: PointerEvent) => {
+    this.hasInteracted();
+    this.pointers.delete(event.pointerId);
+  };
+
+  hasInteracted() {
+    if (this._hasInteracted) return;
+    this._hasInteracted = true;
+    this.onFirstInteraction?.();
+  }
 }
 
-type Keys = "up" | "left" | "down" | "right" | "space" | "shift";
+type Keys = "up" | "left" | "down" | "right" | "space" | "shift" | "interact";
 
 const initialKeys = {
   up: false,
@@ -33,6 +87,7 @@ const initialKeys = {
   right: false,
   space: false,
   shift: false,
+  interact: false,
 };
 
 const KEYS = new Map<Keys, Set<string>>([
@@ -42,4 +97,5 @@ const KEYS = new Map<Keys, Set<string>>([
   ["right", new Set(["ArrowRight", "KeyD"])],
   ["space", new Set(["Space"])],
   ["shift", new Set(["ShiftLeft", "ShiftRight"])],
+  ["interact", new Set(["KeyE"])],
 ]);

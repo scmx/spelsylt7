@@ -73,6 +73,12 @@ export class Viewport {
     return { x, y };
   }
 
+  unresolve({ clientX, clientY, }: { clientX: number, clientY:number }): Position {
+    const x = clientX / this.canvas.tile
+    const y = clientY / this.canvas.tile
+    return { x, y}
+  }
+
   get min() {
     const mid = this.target.pos;
     const { width, height } = this.size;

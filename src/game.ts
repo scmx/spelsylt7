@@ -1,4 +1,6 @@
 import { InputHandler } from "./input";
+import { InteractionManager } from "./interaction";
+import { Music } from "./music";
 import { NPC } from "./npc";
 import { Player } from "./player";
 import { Position } from "./position";
@@ -6,16 +8,21 @@ import { Tiles } from "./tiles";
 import { Viewport } from "./viewport";
 
 export class Game {
-  input = new InputHandler();
-
+  input: InputHandler;
   player: Player;
+  music: Music;
   tiles: Tiles;
   viewport: Viewport;
+  interactionManager: InteractionManager;
   npcs = new Set<NPC>();
 
-  constructor(viewport: Viewport, player: Player) {
+  constructor(viewport: Viewport, player: Player, music: Music) {
     this.viewport = viewport;
     this.player = player;
+    this.music = music
+    this.interactionManager = new InteractionManager(player, this.npcs);
+    this.input = new InputHandler(viewport);
+    this.input.onFirstInteraction = () => music.play()
     this.tiles = new Tiles(1337);
     (window as any).game = this;
   }
@@ -23,7 +30,7 @@ export class Game {
   update(deltaTime: number): void {
     const { input, viewport } = this;
     this.viewport.update(deltaTime, input);
-    this.tiles.update(deltaTime, viewport);
+    this.tiles.update(deltaTime, viewport, input);
     this.player.update(deltaTime, viewport, input);
 
     if (Math.random() < 0.2) {
@@ -41,6 +48,8 @@ export class Game {
       npc.update(deltaTime, viewport);
       if (distance(npc, this.player) > 100) this.npcs.delete(npc);
     }
+
+    this.interactionManager.update(deltaTime, this.viewport, input);
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

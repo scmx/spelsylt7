@@ -16,6 +16,7 @@ export class Character {
   speed = 1;
   xmov: CharacterMove = 0;
   ymov: CharacterMove = 0;
+  target?: Position;
 
   pos: Position;
   accessory?: CharacterAccessory;
@@ -54,6 +55,22 @@ export class Character {
       this.frame.x = 0;
     }
     this.loadImages();
+  }
+
+  pointToTarget() {
+    if (!this.target) return
+    const xd = this.target.x - this.pos.x;
+    const yd = this.target.y - this.pos.y;
+    const distance = Math.hypot(yd, xd)
+    if (distance < 0.5) {
+      delete this.target;
+      this.xmov = 0;
+      this.ymov = 0;
+      this.state = CharacterState.idle;
+    } else {
+      this.xmov = Math.min(xd, (xd >> -1) | 1) as CharacterMove;
+      this.ymov = Math.min(yd, (yd >> -1) | 1) as CharacterMove;
+    }
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {

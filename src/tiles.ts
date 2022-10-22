@@ -1,5 +1,6 @@
 import { Chunk } from "./chunk";
 import { Entity } from "./entity";
+import { InputHandler } from "./input";
 import { Viewport } from "./viewport";
 
 export class Tiles implements Entity {
@@ -10,9 +11,9 @@ export class Tiles implements Entity {
     this.seed = seed;
   }
 
-  update(deltaTime: number, viewport: Viewport): void {
+  update(deltaTime: number, viewport: Viewport, input: InputHandler): void {
     this.loadUnloadChunks(viewport);
-    for (const [, chunk] of this.chunks) chunk.update(deltaTime, viewport);
+    for (const [, chunk] of this.chunks) chunk.update(deltaTime, viewport, input);
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
