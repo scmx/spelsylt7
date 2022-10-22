@@ -46,7 +46,6 @@ export class InputHandler {
     const { canvas, min } = this.viewport;
     const x = (clientX * window.devicePixelRatio) / canvas.tile + min.x;
     const y = (clientY * window.devicePixelRatio) / canvas.tile + min.y;
-    console.log(event.pointerId, { x, y }, { clientX, clientY });
     this.pointers.set(event.pointerId, { x, y });
   };
 
@@ -57,7 +56,6 @@ export class InputHandler {
     const { canvas, min } = this.viewport;
     const x = (clientX * window.devicePixelRatio) / canvas.tile + min.x;
     const y = (clientY * window.devicePixelRatio) / canvas.tile + min.y;
-    console.log(event.pointerId, { x, y }, { clientX, clientY });
     this.pointers.set(event.pointerId, { x, y });
   };
 

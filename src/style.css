@@ -4,7 +4,6 @@
   line-height: 24px;
   font-weight: 400;
 
-  color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
@@ -16,6 +15,10 @@
 
   pointer-events: none;
   touch-action: none;
+}
+
+* {
+  outline: none !important;
 }
 
 a {
@@ -30,8 +33,13 @@ a:hover {
 body {
   margin: 0;
 }
+body,
+button {
+  font-family: monospace;
+}
 
 #toggle {
+  pointer-events: auto;
   position: absolute;
   bottom: 0;
   right: 0;
@@ -47,20 +55,92 @@ h1 {
 }
 
 html,
-body,
-#app {
+body {
   height: 100%;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+#app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#menu {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 0;
+  box-shadow: 0 0 20px 20px rgba(255, 255, 255, 0.1);
+  border-radius: 100%;
+  pointer-events: auto;
+}
+
+#menu::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#menu_start_button {
+  border: 0;
+  font-size: 3rem;
+  background: none;
+  font-weight: bold;
+  color: lime;
+}
+
+#dialog {
+  pointer-events: auto;
+  padding: 0;
+  height: 70vh;
+  width: 70vw;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 0;
+}
+#dialog_inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+}
+/* @media (orientation: portrait) { */
+/*   #dialog_inner { */
+/*     flex-direction: column; */
+/*   } */
+/* } */
+#dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#dialog_computer_image {
+  width: 129px;
+  height: 141px;
+  background-position-y: top;
+  background-size: 100%;
+}
+#dialog_content {
+  font-size: 3rem,
+}
+#dialog_canvas {
+  width: 140px;
+  height: 140px;
+}
+
+#dialog_footer {
+  display: flex;
+  flex: 1;
+  flex-grow: 0;
+  width: 100%;
+}
+#dialog_footer button {
+  flex: 1;
+  border: 3px solid blue;
+  background: none;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: blue;
 }

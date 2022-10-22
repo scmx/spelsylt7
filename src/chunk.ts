@@ -42,7 +42,9 @@ export class Chunk {
     this.hoverIndexes.clear();
     for (const [, { x, y }] of input.pointers) {
       if (x >= pos.x && x <= max.x && y >= pos.y && y <= max.y) {
-        this.hoverIndexes.add(Math.floor(y-pos.y) * Chunk.size + Math.floor(x-pos.x));
+        this.hoverIndexes.add(
+          Math.floor(y - pos.y) * Chunk.size + Math.floor(x - pos.x)
+        );
       }
     }
     // if (this.hoverIndexes.size > 0) {
@@ -86,7 +88,7 @@ export class Chunk {
         );
       }
       if (this.hoverIndexes.has(i)) {
-        ctx.fillStyle=`rgba(255, 255, 255, 0.3)`
+        ctx.fillStyle = `rgba(255, 255, 255, 0.3)`;
         ctx.fillRect(x, y, tileSize + 1, tileSize + 1);
       }
     }

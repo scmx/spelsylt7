@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
   <title>Vite + TS</title>
 </head>
 
@@ -13,6 +14,22 @@
     <canvas id="canvas"></canvas>
     <button id="toggle" type="button">Toggle</button>
   </div>
+  <dialog id="menu">
+    <button id="menu_start_button" type="button">START</button>
+  </dialog>
+  <dialog id="dialog">
+    <div id="dialog_inner">
+      <div id="dialog_content"></div>
+      <div id="dialog_computer_image" style="
+            background-image: url(/assets/kindpng_7461681_custom_happy_sad.png);
+          "></div>
+      <canvas id="dialog_canvas" width="140" height="140"></canvas>
+      <footer id="dialog_footer">
+        <button id="dialog_no_button" type="button">NO</button>
+        <button id="dialog_ok_button" type="button">OK</button>
+      </footer>
+    </div>
+  </dialog>
   <div style="display: none">
     <img id="image_terrain" src="/assets/terrain.png" />
   </div>

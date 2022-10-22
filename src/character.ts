@@ -58,10 +58,10 @@ export class Character {
   }
 
   pointToTarget() {
-    if (!this.target) return
+    if (!this.target) return;
     const xd = this.target.x - this.pos.x;
     const yd = this.target.y - this.pos.y;
-    const distance = Math.hypot(yd, xd)
+    const distance = Math.hypot(yd, xd);
     if (distance < 0.5) {
       delete this.target;
       this.xmov = 0;
@@ -76,7 +76,15 @@ export class Character {
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
     const { tile } = viewport.canvas;
     const pos = viewport.resolve(this.pos);
-    const { frame } = this;
+    this.drawAt(ctx, pos, tile);
+  }
+
+  drawAt(
+    ctx: CanvasRenderingContext2D,
+    pos: Position,
+    tile: number,
+    frame = this.frame
+  ) {
     const size = tile * 4;
     const half = size / 2;
     const eight = size / 8;
@@ -115,7 +123,7 @@ export class Character {
   }
 }
 
-enum CharacterFacing {
+export enum CharacterFacing {
   right,
   left,
   down,

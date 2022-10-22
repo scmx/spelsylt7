@@ -16,6 +16,8 @@ function init() {
   let animationId = 0;
   let lastTime = 0;
 
+  menu.showModal()
+
   function animate(timeStamp: number) {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
@@ -32,14 +34,15 @@ function init() {
   cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(animate);
 
-  toggle.addEventListener("click", () => {
+  toggle.addEventListener("click", (event) => {
+    event?.preventDefault()
     viewport.toggleGameMode();
     toggle.blur();
     const utterance = new SpeechSynthesisUtterance("Kan du laga min skrivare?");
-    utterance.lang = 'sv-SE'
+    utterance.lang = "sv-SE";
     // utterance.pitch = 2
-    utterance.rate = 1
-    utterance.volume = 0.1
+    utterance.rate = 1;
+    utterance.volume = 0.1;
     speechSynthesis.speak(utterance);
   });
 
@@ -53,4 +56,5 @@ init();
 declare global {
   const canvas: HTMLCanvasElement;
   const toggle: HTMLButtonElement;
+  const menu: HTMLDialogElement;
 }

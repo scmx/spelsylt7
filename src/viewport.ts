@@ -8,6 +8,12 @@ enum GameMode {
   god = "god",
 }
 
+export enum GameState {
+  menu = 'menu',
+  playing = 'playing',
+  interaction = 'interaction'
+}
+
 const ZOOM = {
   normal: {
     min: 0.4,
@@ -28,11 +34,12 @@ export class Viewport {
   zoom = 1;
 
   gameMode = GameMode.normal;
+  gameState = GameState.menu;
 
   debug = false;
 
   /** viewport offset from player in number of blocks */
-  offset = { x: 0, y: 0 };
+  offset = { x: 0, y: 2 };
   /** viewport size in number of blocks */
   size = { width: 0, height: 0 };
 
@@ -73,10 +80,16 @@ export class Viewport {
     return { x, y };
   }
 
-  unresolve({ clientX, clientY, }: { clientX: number, clientY:number }): Position {
-    const x = clientX / this.canvas.tile
-    const y = clientY / this.canvas.tile
-    return { x, y}
+  unresolve({
+    clientX,
+    clientY,
+  }: {
+    clientX: number;
+    clientY: number;
+  }): Position {
+    const x = clientX / this.canvas.tile;
+    const y = clientY / this.canvas.tile;
+    return { x, y };
   }
 
   get min() {
