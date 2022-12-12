@@ -4,10 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/spelsylt7/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover" />
   <title>Vite + TS</title>
-  <script type="module" crossorigin src="/spelsylt7/assets/index.dc6fa4a9.js"></script>
-  <link rel="stylesheet" href="/spelsylt7/assets/index.d76723cc.css">
+  <script type="module" crossorigin src="/spelsylt7/assets/index.3f65a2ce.js"></script>
+  <link rel="stylesheet" href="/spelsylt7/assets/index.281e6031.css">
 </head>
 
 <body>
@@ -15,8 +15,30 @@
     <canvas id="canvas"></canvas>
     <button id="toggle" type="button">Toggle</button>
   </div>
+  <dialog id="menu">
+    <button id="menu_start_button" type="button">START</button>
+  </dialog>
+  <dialog id="dialog">
+    <div id="dialog_inner">
+      <div id="dialog_content"></div>
+      <div id="dialog_computer_image" style="
+            background-image: url(/spelsylt7/assets/kindpng_7461681_custom_happy_sad.png);
+          "></div>
+      <canvas id="dialog_canvas" width="140" height="140"></canvas>
+      <footer id="dialog_footer">
+        <button id="dialog_no_button" type="button">NO</button>
+        <button id="dialog_ok_button" type="button">OK</button>
+      </footer>
+    </div>
+  </dialog>
   <div style="display: none">
     <img id="image_terrain" src="/spelsylt7/assets/terrain.png" />
+    <img id="image_outside" src="/spelsylt7/assets/outside.png" />
+    <audio src="/music/field_theme_1.wav"></audio>
+    <audio src="/music/field_theme_2.wav"></audio>
+    <audio src="/music/night_theme_1.wav"></audio>
+    <audio src="/music/sea_theme_2.wav"></audio>
+    <audio src="/music/music.wav"></audio>
   </div>
   
 </body>
