@@ -1,4 +1,5 @@
-import { Position } from "./position";
+import { Tile } from "./chunk";
+import { Position, PositionRange } from "./position";
 import { Viewport } from "./viewport";
 
 export type CharacterMove = -1 | 0 | 1;
@@ -17,8 +18,11 @@ export class Character {
   xmov: CharacterMove = 0;
   ymov: CharacterMove = 0;
   target?: Position;
+  collisionRadius = 0.4;
 
+  tileType = Tile.grass;
   pos: Position;
+  nextPos?: Position;
   accessory?: CharacterAccessory;
   tool?: "keyboard";
 
@@ -28,9 +32,9 @@ export class Character {
     this.loadImages();
   }
 
-  update(deltaTime: number, _viewport: Viewport): void {
-    this.updateFrame(deltaTime);
-  }
+  // update(deltaTime: number, _viewport: Viewport): void {
+  //   this.updateFrame(deltaTime);
+  // }
 
   updateFrame(deltaTime: number, { idleStill }: { idleStill?: boolean } = {}) {
     if (this.frame.timer < this.frame.interval) this.frame.timer += deltaTime;
@@ -43,18 +47,25 @@ export class Character {
     }
   }
 
-  move(deltaTime: number, speed = this.speed) {
+  setNextPos(deltaTime: number, speed = this.speed): void {
+    let distance: number = 0;
     if (this.xmov || this.ymov) {
       const angle = Math.atan2(this.ymov, this.xmov);
       this.state = speed > 0.5 ? CharacterState.run : CharacterState.walk;
       this.facing = updateFacing(this.xmov, this.ymov);
-      this.pos.x += Math.cos(angle) * speed * deltaTime * 0.003;
-      this.pos.y += Math.sin(angle) * speed * deltaTime * 0.003;
+      distance = speed * deltaTime * 0.003;
+      this.loadImages();
+
+      const { x, y } = this.pos;
+      this.nextPos = {
+        x: x + Math.cos(angle) * distance,
+        y: y + Math.sin(angle) * distance,
+      };
     } else if (this.state !== CharacterState.idle) {
       this.state = CharacterState.idle;
       this.frame.x = 0;
+      this.loadImages();
     }
-    this.loadImages();
   }
 
   pointToTarget() {
@@ -77,6 +88,18 @@ export class Character {
     const { tile } = viewport.canvas;
     const pos = viewport.resolve(this.pos);
     this.drawAt(ctx, pos, tile);
+    if (viewport.debug) {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, tile * this.collisionRadius, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = `rgba(255, 0, 0, 0.3)`;
+      if (this.tileType === Tile.water) {
+        console.log(this.tileType, this)
+        ctx.strokeStyle = 'blue'
+      }
+      ctx.stroke();
+    }
   }
 
   drawAt(
@@ -120,6 +143,13 @@ export class Character {
       min: { x: x - half, y: y - half },
       max: { x: x + half, y: y + half },
     };
+  }
+
+  get collision(): PositionRange {
+    const { x, y } = this.pos;
+    const min = { x: x - 0.5, y: y - 0.5 };
+    const max = { x: x + 0.5, y: y + 0.5 };
+    return { min, max };
   }
 }
 

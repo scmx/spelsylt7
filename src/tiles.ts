@@ -1,5 +1,8 @@
-import { Chunk } from "./chunk";
+import { Chunk, Tile } from "./chunk";
+import { Entity } from "./entity";
 import { InputHandler } from "./input";
+import { Position } from "./position";
+// import { sortBy } from "./utils";
 import { Viewport } from "./viewport";
 
 export class Tiles {
@@ -20,14 +23,32 @@ export class Tiles {
     for (const [, chunk] of this.chunks) chunk.drawTerrain(ctx, viewport);
   }
 
-  drawObstacles(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
-    for (const [, chunk] of this.chunks) chunk.drawObstacles(ctx, viewport);
+  get entities(): Entity[] {
+    return [...this.chunks.values()].flatMap((chunk) => [...chunk.obstacles]);
   }
 
-  draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
-    this.drawTerrain(ctx, viewport);
-    this.drawObstacles(ctx, viewport);
+  findTileType(pos: Position, debug = false) {
+    const x = Math.floor(pos.x / Chunk.size) * Chunk.size;
+    const y = Math.floor(pos.y / Chunk.size) * Chunk.size;
+    const chunk = this.chunks.get(`${x}:${y}`);
+    if (!chunk) return Tile.grass; //throw new Error(`Chunk not loaded for ${x}:${y}`)
+    const index =
+      Math.abs(Math.floor(pos.x % Chunk.size)) +
+      Math.abs(Math.floor(pos.y % Chunk.size)) * Chunk.size;
+    if (debug) console.log(index, chunk.tiles[index]);
+    return chunk.tiles[index];
   }
+
+  // drawObstacles(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+  //   [...this.chunks.values()]
+  //     .sort(sortBy(({ pos }) => pos.x + pos.y * viewport.size.width))
+  //     .forEach((chunk) => chunk.drawObstacles(ctx, viewport));
+  // }
+
+  // draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+  //   this.drawTerrain(ctx, viewport);
+  //   this.drawObstacles(ctx, viewport);
+  // }
 
   loadUnloadChunks(viewport: Viewport) {
     const { min, max } = viewport;
@@ -46,7 +67,6 @@ export class Tiles {
         else this.chunks.set(key, new Chunk({ x, y }, this.seed));
       }
     }
-    [...this.chunks.values].sort(sortBy
     for (const [key, chunk] of this.chunks)
       if (chunk.stale) this.chunks.delete(key);
   }

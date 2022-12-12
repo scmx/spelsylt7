@@ -1,10 +1,13 @@
+import { CharacterState } from "./character";
+import { collides } from "./collision";
+import { Entity } from "./entity";
 import { InputHandler } from "./input";
 import { InteractionManager } from "./interaction";
 import { Music } from "./music";
 import { NPC } from "./npc";
 import { Player } from "./player";
-import { Position } from "./position";
 import { Tiles } from "./tiles";
+import { distance, sortBy } from "./utils";
 import { GameState, Viewport } from "./viewport";
 
 export class Game {
@@ -16,24 +19,24 @@ export class Game {
   interactionManager: InteractionManager;
   npcs = new Set<NPC>();
 
-  constructor(viewport: Viewport, player: Player, music: Music) {
+  constructor(viewport: Viewport) {
     this.viewport = viewport;
-    this.player = player;
-    this.music = music;
+    this.music = new Music();
+    this.input = new InputHandler(viewport);
+    this.player = new Player({ x: 0, y: 0 });
+    this.viewport.target = this.player;
     this.interactionManager = new InteractionManager(
-      player,
+      this.player,
       viewport,
       this.npcs
     );
     this.input = new InputHandler(viewport);
-    this.input.onFirstInteraction = () => music.play();
+    this.input.onFirstInteraction = () => {
+      console.log("onFirstInteraction");
+      this.music.play();
+    };
     this.tiles = new Tiles(1337);
     (window as any).game = this;
-    menu_start_button.addEventListener("click", () => {
-      viewport.gameState = GameState.playing;
-      menu.close();
-      viewport.offset.y = 0
-    });
   }
 
   update(deltaTime: number): void {
@@ -41,7 +44,52 @@ export class Game {
     if ([GameState.playing, GameState.menu].includes(viewport.gameState)) {
       this.viewport.update(deltaTime, input);
       this.tiles.update(deltaTime, viewport, input);
-      this.player.update(deltaTime, viewport, input);
+
+      let updates = [this.player, ...this.npcs];
+      for (const entity of updates)
+        entity.update(deltaTime, viewport, this.input);
+      updates = updates.filter((entity) => entity.nextPos);
+
+      for (const entity of updates) {
+        for (const other of updates) {
+          if (entity === other) continue;
+
+          if (collides(entity, other)) {
+            delete entity.nextPos;
+            delete other.nextPos;
+            if (entity.state) entity.state = CharacterState.idle;
+            if (other.state) other.state = CharacterState.idle;
+          }
+        }
+      }
+
+      updates = updates.filter((entity) => entity.nextPos);
+
+      for (const entity of updates) {
+        for (const other of this.entities) {
+          if (entity === other) continue;
+
+          if (collides(entity, other)) {
+            delete entity.nextPos;
+            if (entity.state) entity.state = CharacterState.idle;
+          }
+        }
+      }
+
+      updates = updates.filter((entity) => entity.nextPos);
+
+      for (const entity of updates)
+        if (entity.nextPos) {
+          entity.pos = entity.nextPos;
+          delete entity.nextPos;
+        }
+
+      // this.player.update(deltaTime, viewport, this.input);
+
+      for (const npc of this.npcs) {
+        // npc.update(deltaTime, viewport, input);
+        if (distance(npc.pos, this.player.pos) > 100) this.npcs.delete(npc);
+      }
 
       if (Math.random() < 0.2) {
         if (this.npcs.size < 30) {
@@ -54,9 +102,13 @@ export class Game {
         }
       }
 
-      for (const npc of this.npcs) {
-        npc.update(deltaTime, viewport);
-        if (distance(npc, this.player) > 100) this.npcs.delete(npc);
+      for (const character of [this.player]) {
+        character.tileType = this.tiles.findTileType(character.pos, true);
+        // console.log(character.tileType);
+      }
+
+      for (const character of [...this.npcs]) {
+        character.tileType = this.tiles.findTileType(character.pos);
       }
     }
 
@@ -69,9 +121,9 @@ export class Game {
     const full = Math.min(width, height);
     const half = full / 3;
 
-    this.tiles.draw(ctx, viewport);
-    this.player.draw(ctx, viewport);
-    for (const npc of this.npcs) npc.draw(ctx, viewport);
+    this.tiles.drawTerrain(ctx, viewport);
+
+    for (const entity of this.entities) entity.draw(ctx, this.viewport);
 
     const grd = ctx.createRadialGradient(
       mid.x,
@@ -88,14 +140,16 @@ export class Game {
 
     this.interactionManager.draw(ctx, this.viewport);
   }
-}
 
-function distance(a: WithPosition, b: WithPosition): number {
-  return Math.hypot(a.pos.y - b.pos.y, a.pos.x - b.pos.x);
-}
-
-interface WithPosition {
-  pos: Position;
+  get entities() {
+    const { width } = this.viewport.size;
+    const entities: Entity[] = [
+      this.player,
+      ...this.npcs,
+      ...this.tiles.entities,
+    ];
+    return entities.sort(sortBy(({ pos }) => pos.x + pos.y * width));
+  }
 }
 
 declare global {

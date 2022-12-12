@@ -3,6 +3,8 @@ import { Position, PositionRange } from "./position";
 import { Viewport } from "./viewport";
 
 export class Tree implements Obstacle {
+  collisionRadius = 0.3;
+
   pos: Position;
   collision: PositionRange;
 
@@ -17,17 +19,25 @@ export class Tree implements Obstacle {
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
     const { tile } = viewport.canvas;
     const pos = viewport.resolve(this.pos);
+    const half = tile / 2;
     ctx.drawImage(
       image_outside,
       5 * 16,
       8 * 16,
       16,
       16 * 2,
-      pos.x,
-      pos.y -tile,
+      pos.x - half,
+      pos.y - half - tile,
       tile,
       tile * 2
     );
+    if (viewport.debug) {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, tile * this.collisionRadius, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+    }
   }
 }
 

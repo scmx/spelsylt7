@@ -1,6 +1,4 @@
 import { Game } from "./game";
-import { Music } from "./music";
-import { Player } from "./player";
 import "./style.css";
 import { Viewport } from "./viewport";
 
@@ -8,15 +6,13 @@ function init() {
   const ctx = canvas.getContext("2d")!;
   if (!ctx) throw new Error("Failed to get context");
 
-  const player = new Player({ x: 0, y: 0 });
-  const viewport = new Viewport(ctx, player);
-  const music = new Music();
-  const game = new Game(viewport, player, music);
+  const viewport = new Viewport(ctx);
+  const game = new Game(viewport);
 
   let animationId = 0;
   let lastTime = 0;
 
-  menu.showModal();
+  // menu.showModal();
 
   function animate(timeStamp: number) {
     const deltaTime = timeStamp - lastTime;

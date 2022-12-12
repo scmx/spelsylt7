@@ -7,23 +7,48 @@ const tracks = [
 // const audioTracks = new Map<string, HTMLAudioElement>();
 // for (const name of trackNames) audioTracks.set(name, new Audio());
 
-const audioContext = new AudioContext();
-const gainNode = audioContext.createGain();
+let audioContext: AudioContext;
+let gainNode: GainNode;
 
 let source: MediaElementAudioSourceNode;
 let audio = new Audio();
 audio.loop = true;
+audio.src = `/music/music.wav`;
 
 export class Music {
   track = tracks[0];
+  // playing = false;
 
-  async play() {
-    audio.src = `/music/music.wav`;
+  // constructor() {
+  //   const handleFirstKeypress = (event: KeyboardEvent) => {
+  //     // if (event.key !== "w") return;
+  //     // if (this.playing) return;
+  //     // this.playing = true;
+  //     this.play();
+  //   };
+  //   addEventListener("keypress", handleFirstKeypress, { once: true });
+  // }
+
+  play() {
+    console.log("play");
+    if (!audioContext) {
+      audioContext = new AudioContext();
+      gainNode = audioContext.createGain();
+      source = audioContext.createMediaElementSource(audio);
+      source.connect(gainNode).connect(audioContext.destination);
+      audio.play();
+      return;
+    }
+    if (audioContext.state === "suspended") {
+      audioContext.resume().then(() => {
+        source = audioContext.createMediaElementSource(audio);
+        source.connect(gainNode).connect(audioContext.destination);
+        audio.play();
+      });
+      return;
+    }
     source = audioContext.createMediaElementSource(audio);
     source.connect(gainNode).connect(audioContext.destination);
-    if (audioContext.state === "suspended") {
-      await audioContext.resume();
-    }
     audio.play();
   }
 

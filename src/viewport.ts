@@ -9,9 +9,9 @@ enum GameMode {
 }
 
 export enum GameState {
-  menu = 'menu',
-  playing = 'playing',
-  interaction = 'interaction'
+  menu = "menu",
+  playing = "playing",
+  interaction = "interaction",
 }
 
 const ZOOM = {
@@ -34,12 +34,12 @@ export class Viewport {
   zoom = 1;
 
   gameMode = GameMode.normal;
-  gameState = GameState.menu;
+  gameState = GameState.playing;
 
   debug = false;
 
   /** viewport offset from player in number of blocks */
-  offset = { x: 0, y: 2 };
+  offset = { x: 0, y: 0 };
   /** viewport size in number of blocks */
   size = { width: 0, height: 0 };
 
@@ -56,9 +56,9 @@ export class Viewport {
   ctx: CanvasRenderingContext2D;
   target: Target;
 
-  constructor(ctx: CanvasRenderingContext2D, target: Target) {
+  constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
-    this.target = target;
+    this.target = { pos: {x: 0, y: 0 } };
 
     addEventListener("resize", this._resize);
 

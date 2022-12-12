@@ -7,7 +7,7 @@ import { Tree } from "./tree";
 
 const perlin = new tumult.Perlin2("seed");
 
-enum Tile {
+export enum Tile {
   water = "water",
   sand = "sand",
   grass = "grass",
@@ -121,8 +121,8 @@ export class Chunk {
   }
 
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
-    this.drawTerrain(ctx, viewport)
-    this.drawObstacles(ctx, viewport)
+    this.drawTerrain(ctx, viewport);
+    this.drawObstacles(ctx, viewport);
   }
 
   get max() {
@@ -130,12 +130,12 @@ export class Chunk {
   }
 }
 
-function randomPos(x: number, y: number, width: number, height: number) {
-  return {
-    x: x + Math.floor(Math.random() * width),
-    y: y + Math.floor(Math.random() * height),
-  };
-}
+// function randomPos(x: number, y: number, width: number, height: number) {
+//   return {
+//     x: x + Math.floor(Math.random() * width),
+//     y: y + Math.floor(Math.random() * height),
+//   };
+// }
 
 declare global {
   const image_terrain: HTMLImageElement;

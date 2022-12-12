@@ -10,6 +10,7 @@ export class InputHandler {
 
   constructor(viewport: Viewport) {
     this.viewport = viewport;
+    // addEventListener("keypress", this.onKeypress);
     addEventListener("keydown", this.onKeydown);
     addEventListener("keyup", this.onKeyup);
     addEventListener("blur", this.onBlur);
@@ -19,32 +20,62 @@ export class InputHandler {
     addEventListener("pointerleave", this.onPointerLeave, { passive: false });
     addEventListener("pointerout", this.onPointerLeave, { passive: false });
     addEventListener("pointercancel", this.onPointerLeave, { passive: false });
-    // document.addEventListener("touchstart", touchstartHandler, {
-    //   passive: false,
-    // });
+    document.addEventListener("touchstart", touchstartHandler, {
+      passive: false,
+    });
     document.addEventListener("touchmove", touchmoveHandler, {
       passive: false,
     });
-    // function touchstartHandler(_event: TouchEvent) {
-    //   // event.preventDefault();
-    // }
+    function touchstartHandler(event: TouchEvent) {
+      event.preventDefault();
+    }
     function touchmoveHandler(event: TouchEvent) {
       event.preventDefault();
     }
+    function handleContextMenu(event: MouseEvent) {
+      event.preventDefault();
+    }
+
+    function handleSelectStart(event: Event) {
+      event.preventDefault();
+    }
+
+    function handleSelectionChange(event: Event) {
+      event.preventDefault();
+    }
+
+    addEventListener("contextmenu", handleContextMenu, { passive: false });
+    addEventListener("selectstart", handleSelectStart, { passive: false });
+    addEventListener("selectionchange", handleSelectionChange, {
+      passive: false,
+    });
   }
 
-  onKeydown = (event: KeyboardEvent) => {
+  onKeypress = () => {
     this.hasInteracted();
+  };
+
+  onKeydown = (event: KeyboardEvent) => {
+    let match = false;
     for (const [name, keys] of KEYS) {
-      if (keys.has(event.code)) this.keys[name] = true;
+      if (keys.has(event.code)) {
+        this.keys[name] = true;
+        match = true;
+      }
     }
+    if (match) this.hasInteracted();
   };
 
   onKeyup = (event: KeyboardEvent) => {
-    this.hasInteracted();
+    console.log("onKeyup", event);
+    let match = false;
     for (const [name, keys] of KEYS) {
-      if (keys.has(event.code)) this.keys[name] = false;
+      if (keys.has(event.code)) {
+        this.keys[name] = false;
+        match = true;
+      }
     }
+    if (match) this.hasInteracted();
   };
 
   onBlur = () => {
@@ -74,12 +105,13 @@ export class InputHandler {
   };
 
   onPointerLeave = (event: PointerEvent) => {
-    this.hasInteracted();
+    // this.hasInteracted();
     this.pointers.delete(event.pointerId);
   };
 
   hasInteracted() {
     if (this._hasInteracted) return;
+    console.log("hasInteracted");
     this._hasInteracted = true;
     this.onFirstInteraction?.();
   }

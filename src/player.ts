@@ -1,9 +1,10 @@
 import { Character, CharacterFacing } from "./character";
+import { Entity } from "./entity";
 import { InputHandler } from "./input";
 import { Position } from "./position";
 import { GameState, Viewport } from "./viewport";
 
-export class Player extends Character {
+export class Player extends Character implements Entity {
   speed = 1;
 
   constructor({ x, y }: Position) {
@@ -12,7 +13,7 @@ export class Player extends Character {
     this.facing = CharacterFacing.down;
   }
 
-  update(deltaTime: number, viewport: Viewport, input?: InputHandler): void {
+  update(deltaTime: number, viewport: Viewport, input: InputHandler): void {
     this.updateFrame(deltaTime);
 
     if ([GameState.playing].includes(viewport.gameState)) {
@@ -32,7 +33,7 @@ export class Player extends Character {
       if (!this.xmov && !this.ymov && this.target) {
         this.pointToTarget();
       }
-      this.move(deltaTime, speed);
+      this.setNextPos(deltaTime, speed);
     }
   }
 }

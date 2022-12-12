@@ -1,8 +1,9 @@
-import { Character, CharacterMove, CharacterState } from "./character";
+import { Character } from "./character";
+import { Entity } from "./entity";
 import { Position } from "./position";
 import { Viewport } from "./viewport";
 
-export class NPC extends Character {
+export class NPC extends Character implements Entity {
   markedForDeletion = false;
   speed = sample([0.1, 0.2, 0.3, 0.4, 0.5, 0.6]);
 
@@ -16,7 +17,7 @@ export class NPC extends Character {
     } else if (Math.random() < 0.01) {
       this.target = randomPositionCloserMoreLikely(this.pos);
     }
-    this.move(deltaTime);
+    this.setNextPos(deltaTime);
   }
 }
 
