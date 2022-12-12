@@ -2,6 +2,8 @@ import { Position } from "./position";
 import { Viewport } from "./viewport";
 import tumult from "tumult";
 import { InputHandler } from "./input";
+import { Obstacle } from "./obstacle";
+import { Tree } from "./tree";
 
 const perlin = new tumult.Perlin2("seed");
 
@@ -20,6 +22,7 @@ export class Chunk {
   noise: number[];
   tiles: Tile[];
   hoverIndexes = new Set<number>();
+  obstacles = new Set<Obstacle>();
 
   constructor({ x, y }: Position, seed: number) {
     this.pos = { x, y };
@@ -35,6 +38,25 @@ export class Chunk {
     this.tiles = this.noise.map((n) => {
       return n < 0.15 ? Tile.grass : n > 0.19 ? Tile.water : Tile.sand;
     });
+    // const treeCount = Math.floor(Math.random() * 8);
+    const trees = this.noise
+      .map((n, i) => [n, i])
+      .filter(
+        ([n]) => n < 0.01 && Math.random() ** n < 1.5 && Math.random() < 0.1
+      )
+      .map(([, i]) => ({
+        x: x + (i % Chunk.size),
+        y: y + Math.floor(i / Chunk.size),
+      }))
+      .map((pos) => new Tree(pos));
+    for (const tree of trees) this.obstacles.add(tree);
+    // const trees = this.tiles.map((tile, index) => [tile, index]).filter(([tile]) => tile === Tile.grass && Math.random() > 0.5)
+    // for (let i = 0; i < treeCount; i++){
+    //   const pos = randomPos(x, y, Chunk.size, Chunk.size)
+    //   const index = pos.x + pos.y
+    //   if
+    //   this.obstacles.add(new Tree(pos));
+    // }
   }
 
   update(_deltaTime: number, _viewport: Viewport, input: InputHandler): void {
@@ -53,7 +75,7 @@ export class Chunk {
     // }
   }
 
-  draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+  drawTerrain(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
     const { tile: tileSize } = viewport.canvas;
     const min = viewport.resolve(this.pos);
     for (let i = 0; i < Chunk.size ** 2; i++) {
@@ -94,9 +116,25 @@ export class Chunk {
     }
   }
 
+  drawObstacles(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+    for (const obstacle of this.obstacles) obstacle.draw(ctx, viewport);
+  }
+
+  draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+    this.drawTerrain(ctx, viewport)
+    this.drawObstacles(ctx, viewport)
+  }
+
   get max() {
     return { x: this.pos.x + Chunk.size, y: this.pos.y + Chunk.size };
   }
+}
+
+function randomPos(x: number, y: number, width: number, height: number) {
+  return {
+    x: x + Math.floor(Math.random() * width),
+    y: y + Math.floor(Math.random() * height),
+  };
 }
 
 declare global {

@@ -23,7 +23,7 @@ const ZOOM = {
   },
   god: {
     min: 0.4,
-    max: 20,
+    max: 40,
     start: 20,
     speed: 0.08,
   },

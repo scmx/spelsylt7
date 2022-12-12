@@ -31,7 +31,7 @@ export class InteractionManager {
     dialog_no_button.addEventListener("click", () => {
       delete this.current;
       dialog.close();
-      viewport.gameState = GameState.playing
+      viewport.gameState = GameState.playing;
     });
   }
 
@@ -66,7 +66,7 @@ export class InteractionManager {
       let message = sample(["Hello", "Hi", "Howdie"]);
       dialog_content.textContent = message;
       let utterance = new SpeechSynthesisUtterance(message);
-      utterance.lang = "sv-SE";
+      utterance.lang = "en-US";
       // utterance.voice = voices.find(
       //     (v) => v.lang === "en-US" || v.lang === "en-GB"
       //   )!;
@@ -82,6 +82,7 @@ export class InteractionManager {
         ]);
         dialog_content.textContent = message;
         utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = "en-US";
         speechSynthesis.speak(utterance);
       }, 2000);
       // delete this.current;

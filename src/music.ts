@@ -1,45 +1,53 @@
-const trackNames = [
-  "field_theme_1.wav",
-  "field_theme_2.wav",
-  "night_theme_1.wav",
+const tracks = [
+  { name: "field_theme_1.wav", length: 80 }, //(((+96 + 87 + 58 },
+  { name: "field_theme_2.wav", length: 96 },
+  { name: "night_theme_1.wav", length: 87.272721 },
 ];
 
-const audioTracks = new Map<string, HTMLAudioElement>();
-for (const name of trackNames) audioTracks.set(name, new Audio());
+// const audioTracks = new Map<string, HTMLAudioElement>();
+// for (const name of trackNames) audioTracks.set(name, new Audio());
 
 const audioContext = new AudioContext();
 const gainNode = audioContext.createGain();
 
-let track: MediaElementAudioSourceNode;
-let audio: HTMLAudioElement | undefined;
+let source: MediaElementAudioSourceNode;
+let audio = new Audio();
+audio.loop = true;
 
 export class Music {
-  trackName = trackNames[0];
+  track = tracks[0];
 
-  play() {
-    audio?.pause();
-    audio = audioTracks.get(this.trackName)!;
-    if (!audio.src) {
-      audio.src = `/music/${this.trackName}`;
-      audio.loop = true;
+  async play() {
+    audio.src = `/music/music.wav`;
+    source = audioContext.createMediaElementSource(audio);
+    source.connect(gainNode).connect(audioContext.destination);
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
     }
-    track?.disconnect();
-    track = audioContext.createMediaElementSource(audio);
-    track.connect(gainNode).connect(audioContext.destination);
-
-    const audioContextReady = () => {
-      audio?.play();
-
-      setTimeout(() => {
-        this.trackName =
-          trackNames[
-          (trackNames.indexOf(this.trackName) + 1) % trackNames.length
-          ];
-        this.play();
-      }, 25000);
-    };
-    audioContext.resume().then(audioContextReady);
+    audio.play();
   }
+
+  // async play() {
+  //   audio.src = `/music/${this.track.name}`;
+  //   audio.currentTime = 0;
+
+  //   if (!source) {
+  //     source = audioContext.createMediaElementSource(audio);
+  //     source.connect(gainNode).connect(audioContext.destination);
+  //   }
+
+  //   if (audioContext.state === "suspended") {
+  //     await audioContext.resume();
+  //   }
+
+  //   audio?.play();
+
+  //   setTimeout(() => {
+  //     audio?.pause();
+  //     this.track = tracks[(tracks.indexOf(this.track) + 1) % tracks.length];
+  //     this.play();
+  //   }, 5000);
+  // }
 }
 
 declare global {

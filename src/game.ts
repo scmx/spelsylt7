@@ -26,7 +26,7 @@ export class Game {
       this.npcs
     );
     this.input = new InputHandler(viewport);
-    // this.input.onFirstInteraction = () => music.play();
+    this.input.onFirstInteraction = () => music.play();
     this.tiles = new Tiles(1337);
     (window as any).game = this;
     menu_start_button.addEventListener("click", () => {

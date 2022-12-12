@@ -13,12 +13,24 @@ export class InputHandler {
     addEventListener("keydown", this.onKeydown);
     addEventListener("keyup", this.onKeyup);
     addEventListener("blur", this.onBlur);
-    addEventListener("pointerdown", this.onPointerDown);
-    addEventListener("pointermove", this.onPointerMove);
-    addEventListener("pointerup", this.onPointerUp);
-    addEventListener("pointerleave", this.onPointerLeave);
-    addEventListener("pointerout", this.onPointerLeave);
-    addEventListener("pointercancel", this.onPointerLeave);
+    addEventListener("pointerdown", this.onPointerDown, { passive: false });
+    addEventListener("pointermove", this.onPointerMove, { passive: false });
+    addEventListener("pointerup", this.onPointerUp, { passive: false });
+    addEventListener("pointerleave", this.onPointerLeave, { passive: false });
+    addEventListener("pointerout", this.onPointerLeave, { passive: false });
+    addEventListener("pointercancel", this.onPointerLeave, { passive: false });
+    // document.addEventListener("touchstart", touchstartHandler, {
+    //   passive: false,
+    // });
+    document.addEventListener("touchmove", touchmoveHandler, {
+      passive: false,
+    });
+    // function touchstartHandler(_event: TouchEvent) {
+    //   // event.preventDefault();
+    // }
+    function touchmoveHandler(event: TouchEvent) {
+      event.preventDefault();
+    }
   }
 
   onKeydown = (event: KeyboardEvent) => {
@@ -41,7 +53,6 @@ export class InputHandler {
 
   onPointerDown = (event: PointerEvent) => {
     this.hasInteracted();
-    event.preventDefault();
     const { clientX, clientY } = event;
     const { canvas, min } = this.viewport;
     const x = (clientX * window.devicePixelRatio) / canvas.tile + min.x;
@@ -50,7 +61,6 @@ export class InputHandler {
   };
 
   onPointerMove = (event: PointerEvent) => {
-    event.preventDefault();
     if (event.pressure < 0.5) return;
     const { clientX, clientY } = event;
     const { canvas, min } = this.viewport;
@@ -60,7 +70,6 @@ export class InputHandler {
   };
 
   onPointerUp = (event: PointerEvent) => {
-    event.preventDefault();
     this.pointers.delete(event.pointerId);
   };
 

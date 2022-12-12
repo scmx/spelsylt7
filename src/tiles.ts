@@ -16,8 +16,17 @@ export class Tiles {
       chunk.update(deltaTime, viewport, input);
   }
 
+  drawTerrain(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+    for (const [, chunk] of this.chunks) chunk.drawTerrain(ctx, viewport);
+  }
+
+  drawObstacles(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
+    for (const [, chunk] of this.chunks) chunk.drawObstacles(ctx, viewport);
+  }
+
   draw(ctx: CanvasRenderingContext2D, viewport: Viewport): void {
-    for (const [, chunk] of this.chunks) chunk.draw(ctx, viewport);
+    this.drawTerrain(ctx, viewport);
+    this.drawObstacles(ctx, viewport);
   }
 
   loadUnloadChunks(viewport: Viewport) {
@@ -37,6 +46,7 @@ export class Tiles {
         else this.chunks.set(key, new Chunk({ x, y }, this.seed));
       }
     }
+    [...this.chunks.values].sort(sortBy
     for (const [key, chunk] of this.chunks)
       if (chunk.stale) this.chunks.delete(key);
   }

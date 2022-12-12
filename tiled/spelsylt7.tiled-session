@@ -1,0 +1,30 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "house_building_assets.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.797,
+            "scaleInEditor": 3.01
+        },
+        "housing_system_roofs.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 3.01
+        },
+        "spelsylt7.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 3.01
+        }
+    },
+    "openFiles": [
+    ],
+    "project": "spelsylt7.tiled-project",
+    "recentFiles": [
+        "spelsylt7.tsx",
+        "house_building_assets.tsx",
+        "housing_system_roofs.tsx"
+    ]
+}

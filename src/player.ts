@@ -28,7 +28,7 @@ export class Player extends Character {
         this.xmov = left && !right ? -1 : !left && right ? 1 : 0;
         this.ymov = up && !down ? -1 : !up && down ? 1 : 0;
       }
-      const speed = viewport.gameMode === "god" ? 20 : 3;
+      const speed = viewport.gameMode === "god" ? 30 : 1;
       if (!this.xmov && !this.ymov && this.target) {
         this.pointToTarget();
       }
